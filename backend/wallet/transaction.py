@@ -7,11 +7,10 @@ class Transaction():
     """
     Document of an exchange of currency from a sender to 1 or more recipients
     """
-    def __init__(self, sender_wallet, recipient_address: str, amount: float):
-        self.id = str(uuid.uuid4())[0:8]
-        self.output = self.create_output(sender_wallet, recipient_address, amount)
-        self.input = self.create_input(sender_wallet, self.output)
-    
+    def __init__(self, sender_wallet=None, recipient_address=None, amount=None, id=None, output=None, input=None):
+        self.id = id or str(uuid.uuid4())[0:8]
+        self.output = output or self.create_output(sender_wallet, recipient_address, amount)
+        self.input = input or self.create_input(sender_wallet, self.output) 
 
 
     def update(self, sender_wallet, recipient_address, amount):
@@ -45,7 +44,6 @@ class Transaction():
         return output
     
 
-
     def create_input(self, sender_wallet, output):
         """
         Structure the input data for the transaction.
@@ -59,6 +57,22 @@ class Transaction():
             "signature": sender_wallet.sign(output)
         }
         return input
+
+
+    def to_json(self):
+        """
+        Serialize the transaction
+        """
+        return self.__dict__
+
+        
+
+    @staticmethod
+    def from_json(json_transaction: object):
+        """
+        Desirialize json transaction 
+        """
+        return Transaction(**json_transaction) 
 
 
     @staticmethod
@@ -76,6 +90,12 @@ class Transaction():
             transaction.input['signature']
         ):
             raise Exception("Signature is invalid")
+        
+
+
+
+
+
 
 
 def main():
@@ -84,6 +104,9 @@ def main():
     amount = 110
     transaction = Transaction(sender_wallet, recipient_address, amount)
     print(f"transaction >> {transaction.__dict__}")
+    serialized = transaction.to_json()
+    restored = Transaction.from_json(serialized)
+    print(f"restored >> {restored.__dict__}")
 
 if __name__=="__main__":
     main()

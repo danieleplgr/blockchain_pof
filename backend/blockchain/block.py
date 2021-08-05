@@ -9,7 +9,7 @@ GENESIS_DATA = {
     "timestamp": 1,
     "hash": "genesis_hash",
     "last_hash": "",
-    "data": "genesis_data", 
+    "data": [{"id": "aaaaaaaa", "input": {"address": None}, "output": {}}], 
     "difficulty": 3,
     "nonce": "test"
 }

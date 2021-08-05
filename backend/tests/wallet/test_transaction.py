@@ -1,6 +1,7 @@
 import pytest
 from backend.wallet.transaction import Transaction
 from backend.wallet.wallet import Wallet
+from backend.config import STARTING_BALANCE
 
 
 def test_transaction():
@@ -20,17 +21,16 @@ def test_transaction():
 
 def test_transaction_exceed_balance():
     with pytest.raises(Exception, match="amount exceed the balance"):
-        sender_wallet = Wallet()
-        sender_wallet.balance = 10
+        sender_wallet = Wallet() 
         recipient_address = "aaaabbbb"
-        amount = 50 
+        amount = STARTING_BALANCE + 1
         Transaction(sender_wallet, recipient_address, amount)
 
 
 
 def test_transaction_update(): 
     sender_wallet = Wallet()
-    sender_wallet.balance = 60
+    #sender_wallet.balance = 60
     recipient_address = "aaaabbbb"
     next_recipient = "ccccdddd"
     amount = 50 
@@ -40,19 +40,19 @@ def test_transaction_update():
 
     assert t1.output[recipient_address] == amount
     assert t1.output[next_recipient] == next_amount
-    assert t1.output[sender_wallet.address] == 0
+    assert t1.output[sender_wallet.address] == STARTING_BALANCE - amount - next_amount
     assert Wallet.verify_signature(sender_wallet.public_key, t1.output, t1.input["signature"])
 
 
 
 def test_transaction_update_exceed_balance():
     with pytest.raises(Exception, match="amount exceed the balance"):
-        sender_wallet = Wallet()
-        sender_wallet.balance = 55
+        sender_wallet = Wallet() 
         recipient_address = "aaaabbbb"
-        amount = 50 
+        amount = STARTING_BALANCE  
+        next_amount = 1
         t1 = Transaction(sender_wallet, recipient_address, amount)
-        t1.update(sender_wallet, "ccccdddd", 10)
+        t1.update(sender_wallet, "ccccdddd", next_amount)
 
 
 
