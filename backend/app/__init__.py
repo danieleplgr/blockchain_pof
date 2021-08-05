@@ -32,6 +32,8 @@ def route_blockchain():
 @app.route("/blockchain/mine")
 def route_blockchain_mine(): 
     transactions_as_json = transactionPool.get_transactions_as_json()
+    reward_transaction = Transaction.create_reward_transaction(wallet).to_json()
+    transactions_as_json.append(reward_transaction)
     blockchain.add_block(transactions_as_json)
     block = blockchain.chain[-1]
     pubSubManager.broadcast_block(block)

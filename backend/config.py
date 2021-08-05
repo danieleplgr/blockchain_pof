@@ -6,3 +6,6 @@ SECS = 1000 * MILLISECS
 MINE_RATE = 4 * SECS
 
 STARTING_BALANCE = 1000
+
+MINING_REWARD = 50
+MINING_REWARD_INPUT = {"address": "*--official-mining-reward--*"}
