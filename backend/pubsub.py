@@ -6,6 +6,7 @@ from backend.blockchain.block import Block
 from backend.blockchain.blockchain import Blockchain
 from backend.wallet.transaction import Transaction
 from backend.wallet.transaction_pool import TransactionPool
+from backend.wallet.wallet import Wallet
 
 
 CHANNELS = {
@@ -16,25 +17,32 @@ CHANNELS = {
 
 
 class AppListener(SubscribeCallback):
-    def __init__(self, blockchain: Blockchain, transactionPool: TransactionPool):
+    def __init__(self, blockchain: Blockchain, transactionPool: TransactionPool, wallet: Wallet):
         self.blockchain = blockchain
         self.transactionPool = transactionPool
+        self.wallet = wallet
 
     
     def message(self, pubnub, message_event):
         print(f"\n Incoming message: {message_event.channel} => {message_event.message}")
+        
         if message_event.channel == CHANNELS['BLOCK']:
-            block = Block.from_json(message_event.message) 
+            block = Block.from_json(message_event.message)  
+
+            # do not add current block if mined by this pear (local blockchain already updated)
+            if not Block.was_mined_from_wallet(block, self.wallet):
+                # slicing new list from start to end
+                potential_chain = self.blockchain.chain[:]
+                potential_chain.append(block)
+                try:
+                    self.blockchain.replace_chain(potential_chain)
+                    self.transactionPool.clear_blockchain_transactions(self.blockchain)
+                    print (f"\n Blochain replaced on received block message")
+                except Exception as e:
+                    print (f"\n Error on replacing chain => {e}")
             
-            # slicing new list from start to end
-            potential_chain = self.blockchain.chain[:]
-            potential_chain.append(block)
-            try:
-                self.blockchain.replace_chain(potential_chain)
-                self.transactionPool.clear_blockchain_transactions(self.blockchain)
-                print (f"\n Blochain replaced on received block message")
-            except Exception as e:
-                print (f"\n Error on replacing chain => {e}")
+            else:
+                print(f"Block mined from local pear: not replacing the chain")
         
         elif message_event.channel == CHANNELS['TRANSACTION']:
             transaction = Transaction.from_json(message_event.message)
@@ -50,13 +58,13 @@ class PubSubManager():
     """
     Handle the channel pub/subscribe for the application, give communication between nodes of the network
     """
-    def __init__(self, blockchain: Blockchain, transactionPool: TransactionPool):
+    def __init__(self, blockchain: Blockchain, transactionPool: TransactionPool, wallet: Wallet):
         pnConfig = PNConfiguration()
         pnConfig.subscribe_key="sub-c-a0e92d96-f178-11eb-a38f-7e76ce3f98e8" 
         pnConfig.publish_key="pub-c-34c92741-0596-4980-be56-e5c0f34aef48"
         self.pubnub = PubNub(pnConfig)
         self.pubnub.subscribe().channels(CHANNELS.values()).execute()
-        self.pubnub.add_listener(AppListener(blockchain, transactionPool))
+        self.pubnub.add_listener(AppListener(blockchain, transactionPool, wallet))
 
 
     def publish(self, channel: str, event_message: object):

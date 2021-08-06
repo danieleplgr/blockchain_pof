@@ -8,8 +8,7 @@ from cryptography.hazmat.primitives.asymmetric.utils import (
 )
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.exceptions import InvalidSignature
-from backend.config import STARTING_BALANCE
-from backend.blockchain.blockchain import Blockchain
+from backend.config import STARTING_BALANCE 
 
 
 class Wallet():
@@ -76,7 +75,7 @@ class Wallet():
 
 
     @staticmethod
-    def calculate_balance(blockchain: Blockchain, address):
+    def calculate_balance(blockchain, address):
         """
         Calculate the balance of the given address considering the transactions in the blockchain data.
         The balance is found by adding the output vaòlue that belong to the address since the most recent transaction 

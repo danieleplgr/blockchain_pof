@@ -2,12 +2,15 @@ import json, time
 
 from backend.util.hashing import get_block_hash
 from backend.util.hexbinary import hex_to_binary
-from backend.config import MINE_RATE
+from backend.config import MINE_RATE, MINING_REWARD_FROM_ADDRESS , MINING_REWARD
+from backend.wallet.transaction import Transaction
 
+
+GENESIS_BLOCK_HASH = "genesis_hash"
 
 GENESIS_DATA = {
     "timestamp": 1,
-    "hash": "genesis_hash",
+    "hash": GENESIS_BLOCK_HASH,
     "last_hash": "",
     "data": [{"id": "aaaaaaaa", "input": {"address": None}, "output": {}}], 
     "difficulty": 3,
@@ -63,7 +66,7 @@ class Block:
     def genesis():
         """
         Create the first genesis block
-        """ 
+        """  
         return Block(**GENESIS_DATA)
 
     
@@ -121,6 +124,23 @@ class Block:
         Deserialize from json
         """
         return Block(**block_json)
+
+
+    @staticmethod
+    def was_mined_from_wallet(block, wallet):
+        """
+        Return true if the block was mined by the wallet address
+        """
+        for transaction_dict in block.data:
+            transaction = Transaction.from_json(transaction_dict)
+            # check if this is the transaction_reward
+            if transaction.input["address"] == MINING_REWARD_FROM_ADDRESS:
+                # check if the recipient of the reward is the passed wallet address
+                if wallet.address in transaction.output and \
+                    transaction.output[wallet.address] == MINING_REWARD:
+                    return True
+        return False
+
 
     
     def __eq__(self, other: object):

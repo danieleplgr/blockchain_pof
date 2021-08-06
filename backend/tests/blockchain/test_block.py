@@ -2,6 +2,8 @@ import time, pytest
 from backend.config import MINE_RATE, SECS
 from backend.blockchain.block import Block, GENESIS_DATA
 from backend.util.hexbinary import hex_to_binary
+from backend.wallet.transaction import Transaction
+from backend.wallet.wallet import Wallet
 
 
 def test_mine_block():
@@ -95,3 +97,13 @@ def test_is_valid_block_bad_block_hash(last_block, block):
     block.hash = "000000000031cdcfd06d2eaca03501bf17a2fc633fb578cddd4c5daf3ce2fc1d"
     with pytest.raises(Exception):
         Block.is_valid_block(last_block, block)
+
+
+def test_block_mined_from_wallet(last_block):
+    sender_wallet = Wallet()
+    miner_wallet = Wallet()
+    transaction = Transaction(sender_wallet, "recipient", 10)
+    reward_transaction = Transaction.create_reward_transaction(miner_wallet)
+    block = Block.mine_block(last_block, [ transaction.to_json(), reward_transaction.to_json() ] )
+    assert Block.was_mined_from_wallet(block, sender_wallet) == False
+    assert Block.was_mined_from_wallet(block, miner_wallet) == True
