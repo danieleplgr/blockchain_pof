@@ -21,3 +21,9 @@ Remember to activate venv first
 **Run a peer instance**
 
 ```$env:PEER = "True" && py -m backend.app```
+
+
+**Run FE**
+
+In frontend dir run
+```npm run start```
