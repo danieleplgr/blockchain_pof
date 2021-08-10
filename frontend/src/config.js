@@ -1,0 +1,7 @@
+const API_BASE_URL = "http://localhost:5000";
+
+const NANOSECS_PY = 1;
+const MICROSECS_PY = 1000 * NANOSECS_PY;
+const MILLISECS_PY = 1000 * MICROSECS_PY;
+
+export {API_BASE_URL, MILLISECS_PY};

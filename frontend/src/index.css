@@ -31,11 +31,13 @@ body {
 
 .Transaction {
   padding: 5%;
+  background-color: black;
 }
 
 .Blockchain, .ConductTransaction, .TransactionPool {
   margin: 10%;
   margin-top: 5%;
+  width: 800px;
 }
 
 a, a:hover {
