@@ -27,3 +27,7 @@ Remember to activate venv first
 
 In frontend dir run
 ```npm run start```
+
+**Seed local be with data**
+
+```$env:SEED_DATA = "True" && py -m backend.app```
