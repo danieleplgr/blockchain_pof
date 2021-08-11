@@ -39,7 +39,7 @@ function ToggleTransactionDisplay( {block} ){
 
 function Block( {block} ){
     // destructing 
-    const { timestamp, hash, data } = block;
+    const { timestamp, hash } = block;
     const hashDisplay = `${hash.substring(0,15)}...`;
     const timestampDisplay = new Date(timestamp / MILLISECS_PY).toLocaleString();
 
