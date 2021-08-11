@@ -21,6 +21,20 @@ def route_default():
     return "Blockchain rest api"
 
 
+@app.route("/wallet/know-addresses")
+def route_wallet_know_addresses():
+    know_addresses = set()
+    for block in blockchain.chain:
+        for transaction in block.data: 
+            know_addresses.update(transaction['output'].keys()) 
+    return jsonify(list(know_addresses))
+
+
+@app.route("/transactions")
+def route_transactions(): 
+    return jsonify(transactionPool.get_transactions_as_json())
+
+
 @app.route("/wallet/info")
 def route_wallet_info():
     return jsonify({"address": wallet.address, "balance": wallet.balance})
@@ -99,5 +113,10 @@ if os.environ.get("SEED_DATA") == "True":
             Transaction(Wallet(), Wallet().address, random.randint(2,50)).to_json(),
             Transaction(Wallet(), Wallet().address, random.randint(2,50)).to_json()
         ])
+    for i in range(3):
+        transactionPool.set_transaction(
+            Transaction(Wallet(), Wallet().address, random.randint(2,50))
+        )
+
 
 app.run(port=PORT)

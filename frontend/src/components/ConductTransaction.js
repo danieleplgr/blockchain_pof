@@ -1,11 +1,19 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {FormGroup, Button, FormControl} from 'react-bootstrap';
 import { API_BASE_URL } from '../config';
+import history from "../history";
 
 
 function ConductTransaction(){
     const [amount, setAmount] = useState(0);
     const [recipient_address, setRecipient] = useState("");
+    const [knownAddresses, setKnowAddresses] = useState([]);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/wallet/know-addresses`)
+            .then(response => response.json())
+            .then(data => setKnowAddresses(data));
+    }, []);
 
     const submitTransaction = () => {
         fetch(`${API_BASE_URL}/wallet/transact`, { 
@@ -16,6 +24,7 @@ function ConductTransaction(){
           .then(data => {
               console.log("Transaction submitted");
               alert("Success");
+              history.push("/transactions");
           });
     }
 
@@ -42,6 +51,16 @@ function ConductTransaction(){
                 <Button variant="danger" onClick={submitTransaction}> 
                     Submit
                 </Button>
+            </div>
+            <br/>
+
+            <div>
+                <h4>Known addresses</h4>
+                {knownAddresses.map( (knowAddress, i) => (
+                    <span key={knowAddress} >
+                        <u>{knowAddress}</u>{i !== knownAddresses.length-1 ? ', ': ''}
+                    </span>
+                ) )}
             </div>
         </div>
     )
