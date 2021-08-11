@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { API_BASE_URL } from "../config";
 import Block from './Block';
 import {Button} from "react-bootstrap";
-
+import Menu from "./Menu";
 
 
 const PAGE_RANGE = 3;
@@ -35,6 +35,9 @@ function Blockchain(){
     return(
         <div className="Blockchain">
             <h3>Blockchain</h3>
+            <Menu />
+            <br/>
+
             <div>{blockchain.map( block => {
                 return <Block key={block.hash} block={block} />
             }  
